@@ -45,7 +45,6 @@ if __name__ == '__main__':
     count = 0
     group = [] #연결된 클라이언트의 소켓정보를 리스트로 묶기 위함
     while True:
-        # 클라이언트가 접속하면 count를 1 증가시키고 group이라는 리스트에 클라이언트 커넥션(conn) 정보를 담는다
         count = count + 1
         conn, addr = server_sock.accept()  # 해당 소켓을 열고 대기
         group.append(conn) #연결된 클라이언트의 소켓정보
@@ -53,19 +52,23 @@ if __name__ == '__main__':
         print(group)
 
 
-        #소켓에 연결된 모든 클라이언트에게 동일한 메시지를 보내기 위한 쓰레드(브로드캐스트)
-        #연결된 클라이언트가 1명 이상일 경우 변경된 group 리스트로 반영
-
+        #소켓에 연결된 모든 클라이언트에게 동일한 메시지를 보내기 위한 쓰레드
+        # 브로드캐스트
+        # 연결된 클라이언트가 1명일 경우 모든 클라이언트에게 브로드캐스트 하지 않아도 됨
+        # 연결된 클라이언트가 1명 이상일 경우 클라이언트에게서 메세지 받으면 모든 클라이언트에게 브로드캐스트
         if count > 1:
             send_queue.put('Group Changed')
-            thread1 = threading.Thread(target=Send, args=(group, send_queue,))
-            thread1.start()
+            thread = threading.Thread(target=Send, args=(group, send_queue,))
+            thread.start()
             pass
         else:
-            thread1 = threading.Thread(target=Send, args=(group, send_queue,))
-            thread1.start()
+            thread = threading.Thread(target=Send, args=(group, send_queue,))
+            thread.start()
 
         #소켓에 연결된 각각의 클라이언트의 메시지를 받을 쓰레드
+        thread1 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+        thread1.start()
+
         thread2 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
         thread2.start()
         
