@@ -49,7 +49,6 @@ if __name__ == '__main__':
         conn, addr = server_sock.accept()  # 해당 소켓을 열고 대기
         group.append(conn) #연결된 클라이언트의 소켓정보
         print('Connected ' + str(addr))
-        print(group)
 
 
         #소켓에 연결된 모든 클라이언트에게 동일한 메시지를 보내기 위한 쓰레드
@@ -60,23 +59,13 @@ if __name__ == '__main__':
             send_queue.put('Group Changed')
             thread = threading.Thread(target=Send, args=(group, send_queue,))
             thread.start()
-            pass
         else:
             thread = threading.Thread(target=Send, args=(group, send_queue,))
             thread.start()
 
-        #소켓에 연결된 각각의 클라이언트의 메시지를 받을 쓰레드
-        thread1 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
-        thread1.start()
 
-        thread2 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
-        thread2.start()
-        
-        thread3 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
-        thread3.start()
-        
-        thread4 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
-        thread4.start()
-        
-        thread5 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
-        thread5.start()
+        MAX_CONNECTIONS = 6
+
+        if count <= MAX_CONNECTIONS:
+            thread = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+            thread.start()

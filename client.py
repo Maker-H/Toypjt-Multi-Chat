@@ -5,6 +5,8 @@ def Send(client_sock):
     while True:
         send_data = bytes(input().encode()) # 사용자 입력
         client_sock.send(send_data)  # Client -> Server 데이터 송신
+        if send_data.decode() == "exit":  # "exit" 입력 시 연결 종료
+            break
 
 def Recv(client_sock):
     while True:
