@@ -38,18 +38,19 @@ if __name__ == '__main__':
     HOST = ''  # 수신 받을 모든 IP를 의미
     PORT = 9000  # 수신받을 Port
 
-    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP Socket
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # TCP Socket 만들기
     server_sock.bind((HOST, PORT))  # 소켓에 수신받을 IP주소와 PORT를 설정
     server_sock.listen(10)  # 소켓 연결, 여기서 파라미터는 접속수를 의미
 
     count = 0
     group = [] #연결된 클라이언트의 소켓정보를 리스트로 묶기 위함
     while True:
+        # 클라이언트가 접속하면 count를 1 증가시키고 group이라는 리스트에 클라이언트 커넥션(conn) 정보를 담는다
         count = count + 1
         conn, addr = server_sock.accept()  # 해당 소켓을 열고 대기
         group.append(conn) #연결된 클라이언트의 소켓정보
         print('Connected ' + str(addr))
-        print('conn' + str(conn))
+        print(group)
 
 
         #소켓에 연결된 모든 클라이언트에게 동일한 메시지를 보내기 위한 쓰레드(브로드캐스트)
@@ -67,3 +68,12 @@ if __name__ == '__main__':
         #소켓에 연결된 각각의 클라이언트의 메시지를 받을 쓰레드
         thread2 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
         thread2.start()
+        
+        thread3 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+        thread3.start()
+        
+        thread4 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+        thread4.start()
+        
+        thread5 = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+        thread5.start()

@@ -13,14 +13,17 @@ def Recv(client_sock):
 
 #TCP Client
 if __name__ == '__main__':
-    client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP Socket
+    client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #TCP Socket 만들기
     Host = 'localhost' #통신할 대상의 IP 주소
     Port = 9000  #통신할 대상의 Port 주소
     client_sock.connect((Host, Port)) #서버로 연결시도
     print('Connecting to ', Host, Port)
 
 
-    #Client의 메시지를 보낼 쓰레드
+    #쓰레드 생성
+    # target은 스레드가 실행할 함수를 지정, 여기서는 Send함수가 스레드로 실행
+    # args로 target으로 지정한 함수에 전달할 인자 지정 
+    # 즉 Send(client_sock)를 실행하는 별도의 스레드가 만들어짐
     thread1 = threading.Thread(target=Send, args=(client_sock, ))
     thread1.start()
 
