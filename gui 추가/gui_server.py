@@ -25,12 +25,19 @@ def Send(group, send_queue):
             pass
 
 
-def Recv(conn, count, send_queue):
+def Recv(conn, send_queue):
+    global group
+    global count
     print('Thread Recv' + str(count) + ' Start')
     while True:
-        data = conn.recv(1024).decode()
-        send_queue.put([data, conn, count]) #각각의 클라이언트의 메시지, 소켓정보, 쓰레드 번호를 send로 보냄
-
+        try:
+            data = conn.recv(1024).decode()
+            send_queue.put([data, conn, count])
+        except:
+            group.remove(conn)
+            count -= 1
+            print('disconnect')
+            break
 
 # TCP Echo Server
 if __name__ == '__main__':
@@ -49,7 +56,7 @@ if __name__ == '__main__':
         conn, addr = server_sock.accept()  # 해당 소켓을 열고 대기
         group.append(conn) #연결된 클라이언트의 소켓정보
         print('Connected ' + str(addr))
-
+        print('group len', len(group))
 
         #소켓에 연결된 모든 클라이언트에게 동일한 메시지를 보내기 위한 쓰레드
         # 브로드캐스트
@@ -67,5 +74,5 @@ if __name__ == '__main__':
         MAX_CONNECTIONS = 6
 
         if count <= MAX_CONNECTIONS:
-            thread = threading.Thread(target=Recv, args=(conn, count, send_queue,))
+            thread = threading.Thread(target=Recv, args=(conn, send_queue,))
             thread.start()
